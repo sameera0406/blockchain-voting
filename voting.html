@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Voting</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Exo:wght@400;500;600;700&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap");
+
+        :root {
+            --text-light: #FFFFFF; /* White */
+            --header-button: #FFDAB9; /* Peachy-orange */
+            --vote-button: #5fab6d; /* Green */
+            --cyan-glow: rgba(163, 193, 218, 0.3); /* Light blue glow */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #FF6F61, #FFDAB9); /* Gradient background */
+            overflow: hidden;
+            color: var(--text-light);
+            font-family: "Exo", sans-serif;
+            text-align: center;
+            cursor: none;
+            position: relative;
+            height: 100vh;
+        }
+
+        /* Particle Effect (CSS-based) */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: #FFFFFF;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh);
+            }
+            100% {
+                transform: translateY(-100vh);
+            }
+        }
+
+        /* Cursor Animation */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            position: absolute;
+            pointer-events: none;
+            transition: all 0.2s ease-out;
+            box-shadow: 0 0 10px var(--cyan-glow);
+            z-index: 10001;
+        }
+
+        .cursor.hover {
+            transform: scale(1.5);
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: all 0.1s ease-out;
+            opacity: 0;
+        }
+
+        /* Voting UI */
+        .voting-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.5); /* Dark semi-transparent background */
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            width: 50%;
+            min-width: 405px;
+            height: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--text-light);
+            font-size: 50px;
+            font-weight: bold;
+            text-align: center;
+            font-family: "Orbitron", sans-serif;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+        }
+
+        /* Candidate Div */
+        .candidate {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.7); /* Darker semi-transparent background */
+            padding: 15px;
+            border-radius: 10px;
+            width: 550px;
+            height: 150px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .candidate img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-right: 15px;
+            margin-left: 15px;
+        }
+
+        .candidate span {
+            color: var(--text-light);
+            font-family: "Exo", sans-serif;
+            font-size: 1.2rem;
+        }
+
+        .vote-button {
+            width: 100px;
+            height: 100px;
+            background: transparent;
+            color: var(--text-light);
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid var(--text-light);
+            cursor: none;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-family: "Exo", sans-serif;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .vote-button:hover {
+            transform: scale(1.1);
+            background: var(--vote-button);
+            color: var(--text-light);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background: rgba(0, 0, 0, 0.9);
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+            color: var(--text-light);
+            font-family: "Exo", sans-serif;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: none;
+            font-family: "Exo", sans-serif;
+        }
+
+        .confirm {
+            background: var(--vote-button);
+            color: var(--text-light);
+        }
+
+        .cancel {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles Container -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Modal -->
+    <div id="voteModal" class="modal">
+        <div class="modal-content">
+            <p id="modal-text"></p>
+            <button onclick="confirmVote()" class="modal-btn confirm">Confirm</button>
+            <button onclick="closeModal()" class="modal-btn cancel">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- Cursor Animation -->
+    <div class="cursor" id="cursor"></div>
+
+    <!-- Voting UI -->
+    <div class="voting-container">
+        <h2>Cast Your Vote</h2>
+
+        <div class="candidate">
+            <div style="display: flex; align-items: center;">
+                <img class="imagess" src="diamond-Photoroom.png" alt="Candidate A">
+                <span>Candidate A</span>
+            </div>
+            <div class="vote-button" onclick="vote('Candidate A')">VOTE</div>
+        </div>
+        <div class="candidate">
+            <div style="display: flex; align-items: center;">
+                <img class="imagess" src="spade-Photoroom.png" alt="Candidate B">
+                <span>Candidate B</span>
+            </div>
+            <div class="vote-button" onclick="vote('Candidate B')">VOTE</div>
+        </div>
+        <div class="candidate">
+            <div style="display: flex; align-items: center;">
+                <img class="imagess" src="heart-Photoroom.png" alt="Candidate C">
+                <span>Candidate C</span>
+            </div>
+            <div class="vote-button" onclick="vote('Candidate C')">VOTE</div>
+        </div>
+        <div class="candidate">
+            <div style="display: flex; align-items: center;">
+                <img class="imagess" src="clover-Photoroom.png" alt="Candidate D">
+                <span>Candidate D</span>
+            </div>
+            <div class="vote-button" onclick="vote('Candidate D')">VOTE</div>
+        </div>
+    </div>
+
+    <script>
+        // Voting System
+        function vote(candidate) {
+            document.getElementById("modal-text").innerText = `Are you sure you want to vote for ${candidate}?`;
+            document.getElementById("voteModal").style.display = "block";
+            window.selectedCandidate = candidate;
+        }
+
+        function confirmVote() {
+            const candidate = window.selectedCandidate;
+            if (candidate) {
+                let voteCounts = JSON.parse(localStorage.getItem("voteCounts")) || {
+                    CandidateA: 0,
+                    CandidateB: 0,
+                    CandidateC: 0,
+                    CandidateD: 0
+                };
+
+                let key = candidate.replace(/\s+/g, '');
+                if (voteCounts[key] !== undefined) {
+                    voteCounts[key]++;
+                }
+
+                localStorage.setItem("voteCounts", JSON.stringify(voteCounts));
+                window.location.href = "notif.html";
+            }
+        }
+
+        function closeModal() {
+            document.getElementById("voteModal").style.display = "none";
+        }
+
+        // Cursor Animation with Trail
+        const cursor = document.getElementById('cursor');
+        const trails = [];
+        const maxTrails = 10;
+
+        for (let i = 0; i < maxTrails; i++) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            document.body.appendChild(trail);
+            trails.push(trail);
+        }
+
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX - 10;
+            mouseY = e.clientY - 10;
+        });
+
+        function updateCursor() {
+            const currentX = parseFloat(cursor.style.left || 0);
+            const currentY = parseFloat(cursor.style.top || 0);
+            const newX = currentX + (mouseX - currentX) * 0.5;
+            const newY = currentY + (mouseY - currentY) * 0.5;
+            
+            cursor.style.left = `${newX}px`;
+            cursor.style.top = `${newY}px`;
+
+            trails.forEach((trail, index) => {
+                const prevTrail = index === 0 ? cursor : trails[index - 1];
+                const trailX = parseFloat(prevTrail.style.left || newX);
+                const trailY = parseFloat(prevTrail.style.top || newY);
+                trail.style.left = `${trailX}px`;
+                trail.style.top = `${trailY}px`;
+                trail.style.opacity = (1 - (index / maxTrails)) * 0.5;
+            });
+
+            requestAnimationFrame(updateCursor);
+        }
+        requestAnimationFrame(updateCursor);
+
+        const buttons = document.querySelectorAll('.vote-button, .modal-btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                cursor.classList.add('hover');
+            });
+            button.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hover');
+            });
+        });
+
+        // CSS-based Particle Effect
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 300;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = `${Math.random() * 3 + 1}px`;
+            particle.style.height = particle.style.width;
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>

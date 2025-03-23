@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Glacial+Indifference&display=swap');
+
+:root {
+    --header-color: #ffcc00;
+    --background-color: #1e224e;
+    --text-light: #ffffff;
+    --winner-color: #ff4081;
+    --confetti-bg: url('https://www.transparenttextures.com/patterns/confetti.png'); /* Subtle confetti background */
+}
+
+body {
+    background-color: var(--background-color);
+    background-image: var(--confetti-bg);
+    background-size: cover;
+    color: var(--text-light);
+    font-family: 'Glacial Indifference', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    overflow: hidden;
+}
+
+/* Header */
+header {
+    background-color: var(--header-color);
+    color: #1e224e;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Winner Announcement */
+.winner-announcement {
+    margin-top: 50px;
+    font-size: 30px;
+    font-weight: bold;
+    animation: glow 1.5s infinite alternate;
+    color: var(--winner-color);
+}
+
+@keyframes glow {
+    0% { text-shadow: 0 0 10px #ff4081, 0 0 20px #ff80ab; }
+    100% { text-shadow: 0 0 20px #ff4081, 0 0 30px #ff80ab; }
+}
+
+/* Confetti Animation */
+.confetti-animation {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* Fireworks */
+@keyframes fireworks {
+    0% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0; transform: scale(1.5); }
+}
+
+.firework {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: var(--winner-color);
+    border-radius: 50%;
+    opacity: 0;
+    animation: fireworks 1.5s ease-in-out infinite;
+}
+
+/* Winner Name */
+#winner-name {
+    font-size: 50px;
+    font-weight: bold;
+    text-transform: uppercase;
+    animation: winner-pop 2s ease-in-out infinite alternate;
+}
+
+@keyframes winner-pop {
+    0% { transform: scale(1); color: #ff4081; }
+    100% { transform: scale(1.1); color: #ff80ab; }
+}

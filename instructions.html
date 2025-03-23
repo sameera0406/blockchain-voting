@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orion University Voting System</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Exo:wght@400;500;600;700&display=swap");
+
+        :root {
+            --text-light: #FFFFFF; /* White */
+            --cyan-glow: #FF6F61 /* Light blue glow */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        h1{
+            font-family: Orbitron, sans-serif;
+            text-align: center;
+        }
+
+        body {
+            font-family: Exo, sans-serif;
+            text-align: center;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #FF6F61, #FFDAB9); /* Gradient background */
+            color: white;
+            position: relative;
+        }
+
+        /* Particle Effect (CSS-based) */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1200%;
+            height: 1200%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: #000000; /* Cyan color to match original stars */
+            border-radius: 150%;
+            opacity: 0.7;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh);
+            }
+            100% {
+                transform: translateY(-100vh);
+            }
+        }
+
+        .box {
+            background: rgba(44, 41, 41, 0.95); /* Semi-transparent dark blue */
+            padding: 40px;
+            border-radius: 20px;
+            width: 650px;
+            box-shadow: 0px 0px 30px rgba(255, 111, 97); /* Cyan glow */
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center children (including the button) */
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .instruction {
+            padding: 20px;
+            border-radius: 20px;
+            margin: 15px 0;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0px 0px 10px #FF6F61 ;/* Cyan text shadow */
+            box-shadow: 0px 0px 15px rgba(255, 111, 97); /* Cyan glow */
+            border: 2px solid rgba(255, 111, 97); /* Cyan border */
+        }
+
+        #calendar-countdown {
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(to right, #FF6F61, #FFDAB9); /* Match background gradient */
+            color: white;
+            padding: 20px;
+            display: inline-block;
+            border-radius: 15px;
+            box-shadow: 0px 8px 15px rgba(255, 111, 97);
+            position: relative;
+            margin: 25px 0;
+        }
+
+        #progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.1); /* Slightly more transparent to blend with background */
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #FF6F61, #FF8C7A); /* Gradient from background color to a slightly darker shade */
+            transform: scaleX(1);
+            transform-origin: left;
+            transition: transform 1s linear;
+        }
+
+        #nextButton {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center the text */
+            gap: 8px;
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #000000; /* Black text */
+            border: 2px solid #ffffff; /* Black border */
+            background: linear-gradient(135deg, #FF6F61, #FFDAB9);
+            font-family: "Exo", sans-serif;
+            box-shadow: 0 0 5px var(rgb(255, 111, 97)); /* Cyan glow */
+            border-radius: 15px;
+            transition: 0.3s;
+            margin-top: 30px;
+        }
+
+        #nextButton:disabled {
+            background: rgba(255, 111, 97); /* Semi-transparent gray background */
+            color: #ffffff; /* Darker gray text for disabled state */
+            border-color: #666666; /* Darker gray border */
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #nextButton:not(:disabled):hover {
+            background: #000000; /* Black background on hover */
+            color: var(--text-light); /* White text on hover */
+            box-shadow: 0 0 15px rgba(39, 3, 242, 0.5); /* Stronger glow on hover */
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles Container -->
+    <div class="particles" id="particles"></div>
+
+    <div class="box">
+        <h1>Welcome to Orion University Voting</h1>
+        <div class="instruction">Step 1: Select your desired Party from the list.</div>
+        <div class="instruction">Step 2: After selection, reconfirm your choice.</div>
+        <div class="instruction">Step 3: Your vote is securely cast and recorded!</div>
+        
+        <p>Voting will be enabled in:</p>
+        <div id="calendar-countdown">5</div>
+
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        
+        <button id="nextButton" onclick="goToVotingPage()" disabled>Next</button>
+    </div>
+
+    <script>
+        // Redirect to Voting Page
+        function goToVotingPage() {
+            window.location.href = "voting.html";
+        }
+
+        // Countdown Timer and Progress Bar
+        document.addEventListener("DOMContentLoaded", function () {
+            let countdown = 5;
+            const countdownElement = document.getElementById("calendar-countdown");
+            const progressBar = document.getElementById("progress-bar");
+            const nextButton = document.getElementById("nextButton");
+
+            function updateCountdown() {
+                countdownElement.textContent = countdown;
+                progressBar.style.transform = `scaleX(${countdown / 5})`;
+
+                if (countdown > 0) {
+                    countdown--;
+                    setTimeout(updateCountdown, 1000);
+                } else {
+                    nextButton.removeAttribute("disabled"); // Enable button after countdown ends
+                }
+            }
+
+            if (countdownElement && progressBar && nextButton) {
+                updateCountdown(); // Start countdown if elements exist
+            }
+        });
+
+        // CSS-based Particle Effect
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 800; // Match original star count
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = `${Math.random() * 2 + 1}px`; // Random size between 1px and 3px
+            particle.style.height = particle.style.width;
+            particle.style.left = `${Math.random() * 100}vw`; // Random horizontal position
+            particle.style.animationDuration = `${Math.random() * 10 + 5}s`; // Random duration between 5s and 15s
+            particle.style.animationDelay = `${Math.random() * 5}s`; // Random delay
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>
