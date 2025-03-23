@@ -6,6 +6,7 @@
     <title>Election</title>
     <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" id="themeStylesheet" href="ce.css">
     
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Exo:wght@400;500;600;700&display=swap");
@@ -86,8 +87,8 @@
         }
 
         .logo img {
-            height: 70px;
-            width: 70px;
+            height: 55px;
+            width: 55px;
             object-fit: contain;
             filter: drop-shadow(0 0 5px var(--cyan-glow));
         }
@@ -122,8 +123,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #000000;
-            border-color: #070707;
+            color: #FF6F61;
+            border-color: #FF6F61;
             background: rgba(255, 111, 97, 0.1);
             font-family: "Exo", sans-serif;
             box-shadow: 0 0 5px var(--cyan-glow);
@@ -141,7 +142,7 @@
 
         .title-container {
             text-align: center;
-            margin-top: 250px;
+            margin-top: 150px; /* Adjusted to make space for countdown */
         }
 
         h1 {
@@ -192,7 +193,7 @@
 
         .slide-content h2 {
             font-size: 2rem;
-            color: #000000;
+            color: var(--text-light);
             margin-top: 15px;
             text-shadow: 0 0 5px var(--cyan-glow);
         }
@@ -202,7 +203,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: #ff876b;
+            background: rgba(0, 0, 0, 0.9);
             color: #2A4066;
             padding: 15px;
             font-size: 1rem;
@@ -228,7 +229,7 @@
             overflow: hidden;
             margin-top: 20px;
             font-weight: bold;
-            margin-bottom: 300px;
+            margin-bottom: 20px; /* Reduced margin to make space for countdown */
             font-family: "Exo", sans-serif;
             box-shadow: 0 0 5px var(--cyan-glow);
         }
@@ -278,9 +279,9 @@
 
         /* Graph Styles */
         .graph-container {
-            width: 1000px; /* Reduced from 1500px to compress horizontally */
+            width: 1000px;
             height: 800px;
-            margin: 30px auto; /* Keeps it centered */
+            margin: 30px auto;
             margin-top: 300px;
             background: rgba(0, 0, 0, 0.7);
             padding: 20px;
@@ -289,6 +290,44 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        /* Countdown Styles */
+        .countdown-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #voting-countdown {
+            font-size: 36px;
+            font-weight: bold;
+            background: transparent; /* Match background gradient */
+            color: rgb(0, 0, 0);
+            border: 2px solid #000000;
+            padding: 20px;
+            display: inline-block;
+            border-radius: 15px;
+            /* box-shadow: 0px 8px 15px rgba(255, 111, 97, 0.5); */
+            position: relative;
+            margin: 25px 0;
+        }
+
+        #progress-container {
+            width: 300px; /* Adjusted width to fit the design */
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px auto;
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #FF6F61, #FF8C7A);
+            transform: scaleX(1);
+            transform-origin: left;
+            transition: transform 1s linear;
         }
     </style>
 </head>
@@ -302,8 +341,8 @@
             </div>
             <nav>
                 <button class="nav-button">Home</button>
-                <button class="nav-button" href="#carousel-container">Parties</button>
-                <button class="nav-button" href="#graph-container">Charts</button>
+                <button class="nav-button" onclick="window.location.href='#carousel-container'">Parties</button>
+                <button class="nav-button" onclick="window.location.href='#graph-container'">Charts</button>
                 <button class="nav-button logout-button">
                     <i class="fas fa-power-off"></i> 
                 </button>
@@ -314,6 +353,13 @@
             <div class="title-container">
                 <h1>Orion University Election 2025</h1>
                 <button class="voting-button" onclick="window.location.href='instructions.html'">Vote now</button>
+                <div class="countdown-container">
+                    <p>Voting ends in:</p>
+                    <div id="voting-countdown">02:00</div>
+                    <div id="progress-container">
+                        <div id="progress-bar"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="carousel-container" id="carousel-container">
@@ -569,6 +615,67 @@
                 window.voteChart.data.datasets[0].data = Object.values(voteCounts);
                 window.voteChart.update();
             }, 3000);
+
+            // Timer Logic with Countdown Display
+            const votingEndTime = new Date().getTime() + (2 * 60 * 1000); // Set to 2 minutes from now (for testing)
+            const initialDuration = 2 * 60 * 1000; // Initial duration in milliseconds (2 minutes)
+            console.log("Voting End Time:", new Date(votingEndTime)); // Debug: Log the voting end time
+
+            const countdownElement = document.getElementById("voting-countdown");
+            const progressBar = document.getElementById("progress-bar");
+
+            function formatTime(ms) {
+                const totalSeconds = Math.floor(ms / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            function updateCountdown() {
+                const currentTime = new Date().getTime();
+                const timeRemaining = votingEndTime - currentTime;
+
+                if (timeRemaining <= 0) {
+                    countdownElement.textContent = "00:00";
+                    progressBar.style.transform = `scaleX(0)`; // Progress bar fully depleted
+                    return false; // Stop updating
+                }
+
+                // Update countdown display
+                countdownElement.textContent = formatTime(timeRemaining);
+
+                // Update progress bar
+                const progress = timeRemaining / initialDuration;
+                progressBar.style.transform = `scaleX(${progress})`;
+
+                return true; // Continue updating
+            }
+
+            function applyCelebrationTheme() {
+                document.getElementById("themeStylesheet").href = "celebrations.css";
+                console.log("Celebration theme applied!");
+            }
+
+            function checkTime() {
+                const currentTime = new Date().getTime();
+                console.log("Current Time:", new Date(currentTime));
+
+                if (currentTime >= votingEndTime) {
+                    console.log("Voting ended! Redirecting to winner.html...");
+                    applyCelebrationTheme();
+                    setTimeout(() => {
+                        window.location.href = "winner.html";
+                    }, 500);
+                } else {
+                    if (updateCountdown()) {
+                        setTimeout(checkTime, 1000); // Check again after 1 second
+                    }
+                }
+            }
+
+            // Start the timer and countdown
+            updateCountdown(); // Initial update
+            checkTime();
         });
     </script>
 </body>
